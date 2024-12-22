@@ -19,6 +19,14 @@
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
+	<key>CFBundleAllowMixedLocalizations</key>
+    <true/>
+	    <key>UIAppFonts</key>
+    <array>
+        <string>Roboto-Regular.ttf</string>
+        <string>Roboto-Medium.ttf</string>
+        <string>Roboto-Bold.ttf</string>
+    </array>
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
@@ -50,3 +58,4 @@
 	<false/>
 </dict>
 </plist>
+

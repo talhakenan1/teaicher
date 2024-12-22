@@ -1,117 +1,178 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import { NavigationContainer, CompositeNavigationProp } from '@react-navigation/native';
+import { createBottomTabNavigator, BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { createDrawerNavigator, DrawerNavigationProp } from '@react-navigation/drawer';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import AIScreen from './src/screens/AIScreen';
+import RankScreen from './src/screens/RankScreen';
+import OneToOneScreen from './src/screens/OneToOneScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// Tip tanımlamaları
+type RootDrawerParamList = {
+  MainApp: undefined;
+};
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+type TabParamList = {
+  AI: undefined;
+  Rank: undefined;
+  '1-1': undefined;
+};
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+type CompositeNavigation = CompositeNavigationProp<
+  BottomTabNavigationProp<TabParamList>,
+  DrawerNavigationProp<RootDrawerParamList>
+>;
+
+type ProfileButtonProps = {
+  navigation: DrawerNavigationProp<RootDrawerParamList>;
+};
+
+// Drawer ve Tab Navigator'ları oluştur
+const Drawer = createDrawerNavigator<RootDrawerParamList>();
+const Tab = createBottomTabNavigator<TabParamList>();
+
+// Geçici ekran bileşenleri
+// const AIScreen = () => <View style={styles.center}><Text>AI Screen</Text></View>;
+// const RankScreen = () => <View style={styles.center}><Text>Rank Screen</Text></View>;
+// const OneToOneScreen = () => <View style={styles.center}><Text>1-1 Screen</Text></View>;
+// const ProfileScreen: React.FC = () => <View style={styles.center}><Text>Profile Screen</Text></View>;
+
+// Logo bileşeni
+const AppLogo: React.FC = () => (
+  <View style={styles.logoContainer}>
+    <Image
+      source={require('./assets/logo.png')}
+      style={styles.logo}
+    />
+  </View>
+);
+
+// Profil butonu bileşeni
+const ProfileButton: React.FC<ProfileButtonProps> = ({ navigation }) => (
+  <TouchableOpacity 
+    style={styles.profileButton}
+    onPress={() => navigation.openDrawer()}>
+    <Image
+      source={require('./assets/profile.png')}
+      style={styles.profileImage}
+    />
+  </TouchableOpacity>
+);
+
+// Tab Navigator bileşeni
+const TabNavigator = () => {
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <Tab.Navigator 
+  screenOptions={({ navigation }) => ({
+    tabBarStyle: styles.tabBar,
+    tabBarActiveTintColor: '#007AFF',
+    tabBarInactiveTintColor: '#8E8E93',
+    headerStyle: styles.header,
+    headerTitleStyle: styles.headerTitle,
+    headerLeft: () => <AppLogo />,
+    headerRight: () => <ProfileButton navigation={navigation.getParent<DrawerNavigationProp<RootDrawerParamList>>()!} />,
+    // Tab bar ikonları ve etiketleri
+    tabBarLabelStyle: {
+      fontSize: 12,
+      marginBottom: 5,
+    },
+  })}>
+  <Tab.Screen 
+    name="AI" 
+    component={AIScreen}
+    options={{
+      tabBarIcon: ({ color }) => (
+        <Text style={{color, fontSize: 20}}>🤖</Text>
+      ),
+    }}
+  />
+  <Tab.Screen 
+    name="Rank" 
+    component={RankScreen}
+    options={{
+      tabBarIcon: ({ color }) => (
+        <Text style={{color, fontSize: 20}}>🏆</Text>
+      ),
+    }}
+  />
+  <Tab.Screen 
+    name="1-1" 
+    component={OneToOneScreen}
+    options={{
+      tabBarIcon: ({ color }) => (
+        <Text style={{color, fontSize: 20}}>👥</Text>
+      ),
+    }}
+  />
+</Tab.Navigator>
   );
-}
+};
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
+// Ana uygulama bileşeni
+const App: React.FC = () => {
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <NavigationContainer>
+      <Drawer.Navigator
+        screenOptions={{
+          drawerPosition: 'right',
+          drawerStyle: styles.drawer,
+        }}>
+        <Drawer.Screen 
+          name="MainApp" 
+          component={TabNavigator}
+          options={{ headerShown: false }}
+        />
+      </Drawer.Navigator>
+    </NavigationContainer>
   );
-}
+};
 
+// Stiller
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  header: {
+    backgroundColor: '#FFFFFF',
+    elevation: 0,
+    shadowOpacity: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  headerTitle: {
+    display: 'none',
   },
-  highlight: {
-    fontWeight: '700',
+  tabBar: {
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5E5',
+    height: 60,
+    paddingBottom: 5,
+  },
+  drawer: {
+    width: '80%',
+  },
+  logoContainer: {
+    paddingLeft: 15,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    resizeMode: 'contain',
+  },
+  profileButton: {
+    marginRight: 15,
+  },
+  profileImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: '#007AFF',
   },
 });
 
